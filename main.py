@@ -73,3 +73,12 @@ def top(
           .to_dict(orient="records")
     )
     return {"n": n, "weights": {"sitp": w_sitp, "parques": w_parques}, "data": out}
+
+from typing import Dict, Any
+
+@app.post("/search")
+def search(payload: Dict[str, Any]):
+    return {
+        "results": []
+    }
+
