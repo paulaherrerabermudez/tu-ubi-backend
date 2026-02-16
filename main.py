@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from pathlib import Path
 from supabase_client import select_from_view, public_image_url
+from supabase_client import rpc_get_listing_detail, public_image_url
 
 
 app = FastAPI(title="TU UBI SIG Backend", version="0.1")
@@ -15,6 +16,20 @@ def get_listings(limit: int = 20):
         r["cover_url"] = public_image_url(r.get("cover_path"))
 
     return {"items": rows}
+
+@app.get("/api/listings/{listing_id}")
+def get_listing_detail(listing_id: str):
+    data = rpc_get_listing_detail(listing_id)  # devuelve {"listing": {...}, "images": [...]}
+
+    listing = data.get("listing", {})
+    images = data.get("images", [])
+
+    listing["cover_url"] = public_image_url(listing.get("cover_path"))
+
+    for img in images:
+        img["url"] = public_image_url(img.get("path"))
+
+    return {"listing": listing, "images": images}
 
 
 # CORS para que Lovable (y tu web) puedan consumir la API
